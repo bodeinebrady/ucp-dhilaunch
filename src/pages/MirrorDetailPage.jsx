@@ -355,7 +355,11 @@ function SecuritySidebar() {
 
         <div style={{ borderTop: '1px solid rgba(11,11,15,0.08)', marginBottom: 14 }} />
 
-        <button style={{ background: '#1d63ed', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 14px', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button
+          style={{ background: '#1d63ed', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 14px', fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'background-color 0.12s' }}
+          onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1753d4'}
+          onMouseLeave={e => e.currentTarget.style.backgroundColor = '#1d63ed'}
+        >
           View packages, CVEs &amp; attestations
         </button>
       </div>
@@ -577,7 +581,11 @@ function ImagesTab() {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, width: 300, height: 40, borderRadius: 6, padding: '0 12px', background: '#fff', border: '1px solid rgba(11,11,15,0.14)' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 8, width: 300, height: 40, borderRadius: 6, padding: '0 12px', background: '#fff', border: '1px solid rgba(11,11,15,0.14)', transition: 'border-color 0.12s' }}
+          onFocusCapture={e => e.currentTarget.style.borderColor = '#1d63ed'}
+          onBlurCapture={e => e.currentTarget.style.borderColor = 'rgba(11,11,15,0.14)'}
+        >
           <Search size={15} style={{ color: 'rgba(0,0,0,0.35)', flexShrink: 0 }} />
           <input
             type="text"

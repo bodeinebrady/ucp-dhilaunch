@@ -100,6 +100,7 @@ const DIVIDER = '1px solid rgba(11,11,15,0.08)'
 // ─── Shared primitives ────────────────────────────────────────────────────────
 
 function SearchInput({ placeholder, value, onChange }) {
+  const [focused, setFocused] = useState(false)
   return (
     <div style={{ position: 'relative' }}>
       <Search size={15} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
@@ -108,14 +109,17 @@ function SearchInput({ placeholder, value, onChange }) {
         placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         style={{
           width: '100%', boxSizing: 'border-box',
           paddingLeft: 32, paddingRight: 12,
           height: 38, borderRadius: 6,
-          border: '1px solid rgba(11,11,15,0.14)',
+          border: `1px solid ${focused ? '#1d63ed' : 'rgba(11,11,15,0.14)'}`,
           fontSize: '0.875rem', fontFamily: 'inherit',
           outline: 'none', color: '#0B0B0F',
           background: '#fff',
+          transition: 'border-color 0.12s',
         }}
       />
     </div>
@@ -123,20 +127,24 @@ function SearchInput({ placeholder, value, onChange }) {
 }
 
 function TextInput({ placeholder, value, onChange, mono, flex }) {
+  const [focused, setFocused] = useState(false)
   return (
     <input
       type="text"
       placeholder={placeholder}
       value={value}
       onChange={e => onChange(e.target.value)}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
       style={{
         flex: flex ?? 1, height: 38,
         padding: '0 10px', borderRadius: 6,
-        border: '1px solid rgba(11,11,15,0.14)',
+        border: `1px solid ${focused ? '#1d63ed' : 'rgba(11,11,15,0.14)'}`,
         fontSize: '0.875rem',
         fontFamily: mono ? 'ui-monospace, monospace' : 'inherit',
         outline: 'none', color: '#0B0B0F',
         background: '#fff',
+        transition: 'border-color 0.12s',
       }}
     />
   )
@@ -416,7 +424,9 @@ function CollapsibleSection({ icon, label, expanded, onToggle, children }) {
     <div style={{ ...CARD, marginBottom: 12 }}>
       <button
         onClick={onToggle}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '13px 16px', background: '#fff', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '13px 16px', background: '#fff', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background-color 0.12s' }}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#fafafa'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#fff'}
       >
         {icon && <span style={{ color: '#374151', flexShrink: 0 }}>{icon}</span>}
         <span style={{ flex: 1, fontSize: '0.9375rem', fontWeight: 600, color: '#0B0B0F' }}>{label}</span>
@@ -870,12 +880,14 @@ function SettingCard({ label, rows, onRowChange, onAddRow, onRemoveRow, imageCou
           ))}
         </div>
 
-        <button
-          onClick={onAddRow}
-          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#9ca3af', fontSize: '0.875rem', fontFamily: 'inherit', padding: 0 }}
-        >
-          Add
-        </button>
+          <button
+            onClick={onAddRow}
+            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#9ca3af', fontSize: '0.875rem', fontFamily: 'inherit', padding: 0, transition: 'color 0.12s' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#374151'}
+            onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}
+          >
+            Add
+          </button>
       </div>
     </div>
     </>
@@ -1119,7 +1131,9 @@ function CollapsibleConfigSection({ label, count, children, defaultOpen = true }
     <div style={{ borderBottom: DIVIDER }}>
       <button
         onClick={() => setOpen(o => !o)}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', background: 'transparent', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background-color 0.12s' }}
+        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#fafafa'}
+        onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
       >
         <span style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0B0B0F', flex: 1 }}>{label}</span>
         <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>{count}</span>
@@ -1393,7 +1407,9 @@ export default function CustomizePage() {
         }}>
           <button
             onClick={() => step === 0 ? navigate('/mirror') : setStep(s => s - 1)}
-            style={{ background: 'transparent', border: '1px solid rgba(11,11,15,0.14)', borderRadius: 6, padding: '9px 20px', fontSize: '0.9375rem', fontWeight: 520, color: '#374151', cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ background: 'transparent', border: '1px solid rgba(11,11,15,0.14)', borderRadius: 6, padding: '9px 20px', fontSize: '0.9375rem', fontWeight: 520, color: '#374151', cursor: 'pointer', fontFamily: 'inherit', transition: 'border-color 0.12s, background-color 0.12s' }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(11,11,15,0.28)'; e.currentTarget.style.backgroundColor = '#fafafa' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,11,15,0.14)'; e.currentTarget.style.backgroundColor = 'transparent' }}
           >
             {step === 0 ? 'Cancel' : 'Back'}
           </button>

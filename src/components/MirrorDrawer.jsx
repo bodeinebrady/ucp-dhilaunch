@@ -105,14 +105,17 @@ function DrawerHeader({ title, onClose }) {
           background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          color: '#1d63ed',
-          padding: 4,
+          color: '#6b7280',
+          padding: 6,
           borderRadius: 4,
           flexShrink: 0,
           marginTop: 2,
+          transition: 'color 0.12s, background-color 0.12s',
         }}
+        onMouseEnter={e => { e.currentTarget.style.color = '#0B0B0F'; e.currentTarget.style.backgroundColor = 'rgba(11,11,15,0.06)' }}
+        onMouseLeave={e => { e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.backgroundColor = 'transparent' }}
       >
-        <X size={18} />
+        <X size={16} />
       </button>
     </div>
   )

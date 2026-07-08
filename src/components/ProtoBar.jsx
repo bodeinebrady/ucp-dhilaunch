@@ -23,12 +23,17 @@ export default function ProtoBar({ label }) {
           background: 'none',
           border: 'none',
           cursor: 'pointer',
-          padding: 0,
+          padding: '3px 6px',
+          margin: '-3px -6px',
+          borderRadius: 4,
           fontSize: '0.75rem',
           fontWeight: 600,
           color: '#7d2eff',
           fontFamily: 'inherit',
+          transition: 'opacity 0.12s',
         }}
+        onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
+        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
           <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />

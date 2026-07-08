@@ -222,17 +222,22 @@ export default function CatalogPage() {
 
           {/* Search + controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              width: 420,
-              height: 38,
-              borderRadius: 6,
-              padding: '0 12px',
-              background: '#fff',
-              border: '1px solid rgba(11,11,15,0.12)',
-            }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: 420,
+                height: 38,
+                borderRadius: 6,
+                padding: '0 12px',
+                background: '#fff',
+                border: '1px solid rgba(11,11,15,0.12)',
+                transition: 'border-color 0.12s',
+              }}
+              onFocusCapture={e => e.currentTarget.style.borderColor = '#1d63ed'}
+              onBlurCapture={e => e.currentTarget.style.borderColor = 'rgba(11,11,15,0.12)'}
+            >
               <Search size={15} style={{ color: 'rgba(0,0,0,0.4)', flexShrink: 0 }} />
               <input
                 type="text"
@@ -266,7 +271,10 @@ export default function CatalogPage() {
                 color: 'rgba(0,0,0,0.56)',
                 cursor: 'pointer',
                 flexShrink: 0,
+                transition: 'border-color 0.12s, color 0.12s',
               }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(11,11,15,0.28)'; e.currentTarget.style.color = 'rgba(0,0,0,0.8)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(11,11,15,0.12)'; e.currentTarget.style.color = 'rgba(0,0,0,0.56)' }}
             >
               <SlidersHorizontal size={15} />
             </button>

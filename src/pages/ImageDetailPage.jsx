@@ -381,19 +381,24 @@ function SecuritySidebar() {
           </Row>
 
           <Row label="Packages">
-            <button style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 2,
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              color: '#1d63ed',
-              fontWeight: 680,
-              fontSize: '0.875rem',
-              fontFamily: 'inherit',
-            }}>
+            <button
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                color: '#1d63ed',
+                fontWeight: 680,
+                fontSize: '0.875rem',
+                fontFamily: 'inherit',
+                transition: 'opacity 0.12s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            >
               306 packages <ArrowRight size={12} />
             </button>
           </Row>
@@ -469,17 +474,22 @@ function SecuritySidebar() {
 
         <div style={{ borderTop: '1px solid rgba(11,11,15,0.08)', marginBottom: 14 }} />
 
-        <button style={{
-          background: '#1d63ed',
-          color: '#fff',
-          border: 'none',
-          borderRadius: 6,
-          padding: '7px 14px',
-          fontSize: '0.8125rem',
-          fontWeight: 600,
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-        }}>
+        <button
+          style={{
+            background: '#1d63ed',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 6,
+            padding: '7px 14px',
+            fontSize: '0.8125rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            transition: 'background-color 0.12s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.backgroundColor = '#1753d4'}
+          onMouseLeave={e => e.currentTarget.style.backgroundColor = '#1d63ed'}
+        >
           View packages, CVEs &amp; attestations
         </button>
       </div>
@@ -914,17 +924,22 @@ function ImagesTab() {
     <div>
       {/* Search + filter */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          width: 300,
-          height: 40,
-          borderRadius: 6,
-          padding: '0 12px',
-          background: '#fff',
-          border: '1px solid rgba(11,11,15,0.14)',
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            width: 300,
+            height: 40,
+            borderRadius: 6,
+            padding: '0 12px',
+            background: '#fff',
+            border: '1px solid rgba(11,11,15,0.14)',
+            transition: 'border-color 0.12s',
+          }}
+          onFocusCapture={e => e.currentTarget.style.borderColor = '#1d63ed'}
+          onBlurCapture={e => e.currentTarget.style.borderColor = 'rgba(11,11,15,0.14)'}
+        >
           <Search size={15} style={{ color: 'rgba(0,0,0,0.35)', flexShrink: 0 }} />
           <input
             type="text"
