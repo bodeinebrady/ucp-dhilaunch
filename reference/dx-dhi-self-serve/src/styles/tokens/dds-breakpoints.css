@@ -1,0 +1,12 @@
+/* Auto-generated from tokens/ — DO NOT EDIT — run `bun run tokens:build` */
+
+
+@layer dds.breakpoints {
+:root {
+  --dds-breakpoint-2xl: 1536px;
+  --dds-breakpoint-lg: 1024px;
+  --dds-breakpoint-md: 768px;
+  --dds-breakpoint-sm: 640px;
+  --dds-breakpoint-xl: 1280px;
+}
+}

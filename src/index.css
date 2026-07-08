@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/dm-sans';
+@import '@fontsource/fira-mono/400.css';
+@import '@fontsource/fira-mono/500.css';
+@import '@fontsource/fira-mono/700.css';
+@import '@docker/trident/styles/dds-tokens.css';
+
+body {
+  font-family: 'DM Sans Variable', system-ui, sans-serif;
+  background-color: #f8f8fa;
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,25 @@
+/* Auto-generated from tokens/ — DO NOT EDIT — run `bun run tokens:build` */
+
+
+@layer dds.elevation {
+:root {
+  --dds-elevation-raised-shadow: 0 1px 3px oklch(0.200 0.080 262 / 0.10), 0 1px 2px -1px oklch(0.200 0.080 262 / 0.08);
+  --dds-elevation-raised-z: var(--dds-z-dropdown);
+  --dds-elevation-floating-shadow: 0 4px 16px oklch(0.200 0.080 262 / 0.15);
+  --dds-elevation-floating-z: var(--dds-z-sticky);
+  --dds-elevation-overlay-shadow: 0 10px 24px oklch(0.200 0.080 262 / 0.15);
+  --dds-elevation-overlay-z: var(--dds-z-overlay);
+  --dds-elevation-modal-shadow: 0 16px 48px oklch(0.200 0.080 262 / 0.20);
+  --dds-elevation-modal-z: var(--dds-z-modal);
+  --dds-elevation-toast-shadow: 0 16px 48px oklch(0.200 0.080 262 / 0.20);
+  --dds-elevation-toast-z: var(--dds-z-toast);
+}
+
+.dark {
+  --dds-elevation-raised-shadow: 0 1px 3px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.04);
+  --dds-elevation-floating-shadow: 0 4px 16px oklch(0 0 0 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.06);
+  --dds-elevation-overlay-shadow: 0 10px 30px oklch(0 0 0 / 0.35), inset 0 1px 0 oklch(1 0 0 / 0.06);
+  --dds-elevation-modal-shadow: 0 16px 48px oklch(0 0 0 / 0.40), inset 0 1px 0 oklch(1 0 0 / 0.06);
+  --dds-elevation-toast-shadow: 0 16px 48px oklch(0 0 0 / 0.40), inset 0 1px 0 oklch(1 0 0 / 0.06);
+}
+}

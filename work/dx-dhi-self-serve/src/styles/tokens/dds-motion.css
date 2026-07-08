@@ -1,0 +1,28 @@
+/* Auto-generated from tokens/ — DO NOT EDIT — run `bun run tokens:build` */
+
+@layer dds.motion {
+:root {
+  --dds-duration-fast: 120ms;
+  --dds-duration-instant: 50ms;
+  --dds-duration-normal: 200ms;
+  --dds-duration-slow: 300ms;
+  --dds-duration-slower: 500ms;
+  --dds-ease-default: cubic-bezier(0.2, 0, 0, 1);
+  --dds-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --dds-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dds-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --dds-ease-productive: cubic-bezier(0.2, 0, 0.4, 1);
+}
+}
+@theme inline {
+  --transition-duration-fast: var(--dds-duration-fast);
+  --transition-duration-instant: var(--dds-duration-instant);
+  --transition-duration-normal: var(--dds-duration-normal);
+  --transition-duration-slow: var(--dds-duration-slow);
+  --transition-duration-slower: var(--dds-duration-slower);
+  --transition-timing-function-default: var(--dds-ease-default);
+  --transition-timing-function-in: var(--dds-ease-in);
+  --transition-timing-function-in-out: var(--dds-ease-in-out);
+  --transition-timing-function-out: var(--dds-ease-out);
+  --transition-timing-function-productive: var(--dds-ease-productive);
+}

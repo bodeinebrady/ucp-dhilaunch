@@ -1,0 +1,45 @@
+/* Auto-generated from tokens/ — DO NOT EDIT — run `bun run tokens:build` */
+
+@layer dds.spacing {
+:root {
+  --dds-space-0: 0px;
+  --dds-space-025: 1px;
+  --dds-space-050: 2px;
+  --dds-space-100: 4px;
+  --dds-space-1000: 40px;
+  --dds-space-1200: 48px;
+  --dds-space-150: 6px;
+  --dds-space-1600: 64px;
+  --dds-space-200: 8px;
+  --dds-space-2000: 80px;
+  --dds-space-2400: 96px;
+  --dds-space-2800: 112px;
+  --dds-space-300: 12px;
+  --dds-space-3200: 128px;
+  --dds-space-400: 16px;
+  --dds-space-500: 20px;
+  --dds-space-600: 24px;
+  --dds-space-800: 32px;
+}
+}
+
+@theme inline {
+  --spacing-dds-0: var(--dds-space-0);
+  --spacing-dds-025: var(--dds-space-025);
+  --spacing-dds-050: var(--dds-space-050);
+  --spacing-dds-100: var(--dds-space-100);
+  --spacing-dds-1000: var(--dds-space-1000);
+  --spacing-dds-1200: var(--dds-space-1200);
+  --spacing-dds-150: var(--dds-space-150);
+  --spacing-dds-1600: var(--dds-space-1600);
+  --spacing-dds-200: var(--dds-space-200);
+  --spacing-dds-2000: var(--dds-space-2000);
+  --spacing-dds-2400: var(--dds-space-2400);
+  --spacing-dds-2800: var(--dds-space-2800);
+  --spacing-dds-300: var(--dds-space-300);
+  --spacing-dds-3200: var(--dds-space-3200);
+  --spacing-dds-400: var(--dds-space-400);
+  --spacing-dds-500: var(--dds-space-500);
+  --spacing-dds-600: var(--dds-space-600);
+  --spacing-dds-800: var(--dds-space-800);
+}

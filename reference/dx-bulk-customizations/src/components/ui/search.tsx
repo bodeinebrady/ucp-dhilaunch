@@ -1,0 +1,92 @@
+'use client';
+
+import { Search as SearchIcon, X } from 'lucide-react';
+import * as React from 'react';
+
+import {cn} from '../../lib/utils';
+import {Button} from './button';
+import {Input} from './input';
+import {Spinner} from './spinner';
+
+type SearchProps = Omit<React.ComponentProps<'input'>, 'onChange' | 'type'> & {
+  /** Called with the new string value on every keystroke */
+  onChange?: (value: string) => void;
+  /** Called when the clear button is clicked */
+  onClear?: () => void;
+  /** Show loading spinner on the right */
+  loading?: boolean;
+};
+
+function Search({
+  className,
+  placeholder = 'Search\u2026',
+  value,
+  defaultValue,
+  disabled,
+  loading,
+  onChange,
+  onClear,
+  size: _size,
+  ...props
+}: SearchProps & { size?: number }) {
+  const [internalValue, setInternalValue] = React.useState(
+    typeof defaultValue === 'string' ? defaultValue : ''
+  );
+  const isControlled = value !== undefined;
+  const currentValue = isControlled ? value : internalValue;
+  const showClear = !!currentValue && !loading;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (!isControlled) setInternalValue(val);
+    onChange?.(val);
+  };
+
+  const handleClear = () => {
+    if (!isControlled) setInternalValue('');
+    onChange?.('');
+    onClear?.();
+  };
+
+  return (
+    <div
+      data-slot="search"
+      className={cn('relative flex items-center', className)}
+    >
+      <SearchIcon
+        className="pointer-events-none absolute left-2.5 size-4 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <Input
+        type="search"
+        placeholder={placeholder}
+        value={currentValue}
+        disabled={disabled}
+        onChange={handleChange}
+        className="pl-8 [&::-webkit-search-cancel-button]:hidden"
+        {...props}
+      />
+      {loading && (
+        <Spinner
+          className="absolute right-2.5 size-4 text-muted-foreground"
+          aria-label="Searching"
+        />
+      )}
+      {showClear && (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          onClick={handleClear}
+          disabled={disabled}
+          className="absolute right-1.5 size-6 text-muted-foreground hover:text-foreground"
+          aria-label="Clear search"
+        >
+          <X className="size-3.5" aria-hidden="true" />
+        </Button>
+      )}
+    </div>
+  );
+}
+
+export {Search};
+export type {SearchProps};

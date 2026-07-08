@@ -1,0 +1,2463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440, initial-scale=1.0">
+  <title>DHI — Customizations (Tree View) · Prototype</title>
+  <!-- DDS tokens: Inter + Roboto from Google Fonts -->
+  <link rel="stylesheet" href="dds-tokens.css">
+  <style>
+
+    /* ============================================================
+       Prototype aliases — map Figma variable names to KB tokens
+    ============================================================ */
+    :root {
+      --text-primary:    black;
+      --text-secondary:  rgba(0,0,0,0.64);
+      --text-disabled:   rgba(0,0,0,0.32);
+      --divider:         rgba(0,0,0,0.12);
+      --bg-secondary:    #f9f9fa;
+      --primary-blue:    #1d63ed;   /* DDS primary/main */
+      --blue-600:        #1557c0;   /* DDS primary/dark — hover state */
+      --chip-bg:         var(--gray-100);   /* #f4f4f6 */
+      --chip-text:       var(--gray-700);   /* #393f49 */
+      --border-std:      var(--gray-200);   /* #e1e2e6 — DDS border token */
+      --tree-line:       var(--gray-200);
+      --topnav-from:     #1c90ed;
+      --topnav-to:       #1d63ed;
+      --child-row-tint:  rgba(0,0,0,0.02);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family-product);
+      background: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 48px;
+    }
+
+    /* ============================================================
+       Icon mask helper — CSS mask-image technique from CLAUDE.md
+       Usage: class="icon-mask" style="--mask-url:url(...); ..."
+    ============================================================ */
+    .icon-mask {
+      display: inline-block;
+      flex-shrink: 0;
+      -webkit-mask-image:    var(--mask-url);
+      -webkit-mask-repeat:   no-repeat;
+      -webkit-mask-size:     var(--mask-size);
+      -webkit-mask-position: var(--mask-pos);
+      mask-image:            var(--mask-url);
+      mask-repeat:           no-repeat;
+      mask-size:             var(--mask-size);
+      mask-position:         var(--mask-pos);
+    }
+
+    /* ============================================================
+       Page frame (1440px, rounded card)
+    ============================================================ */
+    .page {
+      width: 1440px;
+      min-height: 860px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================================
+       TOP NAV — 64px, blue gradient, border-b grey/200
+    ============================================================ */
+    .topnav {
+      height: 64px;
+      background: linear-gradient(90deg, var(--topnav-from), var(--topnav-to));
+      border-bottom: 1px solid var(--border-std);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 8px 24px;
+      gap: 0;
+    }
+
+    .topnav__brand {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 32px;
+      flex-shrink: 0;
+    }
+
+    .topnav__logo {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .topnav__brand-text {
+      font-family: 'Comfortaa', var(--font-family-product);
+      color: white;
+      font-size: 18px;
+      letter-spacing: -1px;
+      white-space: nowrap;
+    }
+
+    .topnav__nav {
+      display: flex;
+      height: 100%;
+      gap: 0;
+    }
+
+    .topnav__tab {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+      color: rgba(255,255,255,0.9);
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.28px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+
+    .topnav__tab--active {
+      background: rgba(255,255,255,0.08);
+      font-weight: 500;
+      color: white;
+    }
+
+    .topnav__right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topnav__search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1.5px solid #e5f2fc;
+      border-radius: 4px;
+      padding: 0 16px;
+      height: 40px;
+      width: 384px;
+      color: #e5f2fc;
+      font-size: 14px;
+      font-family: var(--font-family-product);
+      flex-shrink: 0;
+    }
+
+    .topnav__icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .topnav__avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 40px;
+      background: var(--gray-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.28px;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       MAIN LAYOUT — sidebar + content
+    ============================================================ */
+    .main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ============================================================
+       SIDEBAR — 248px, bg secondary
+    ============================================================ */
+    .sidebar {
+      width: 248px;
+      flex-shrink: 0;
+      background: var(--bg-secondary);
+      padding: 32px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Org switcher */
+    .org-switcher {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 8px;
+      margin-bottom: 0;
+    }
+
+    .org-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      background: var(--violet-500);   /* #7d2eff */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .org-info { flex: 1; min-width: 0; }
+
+    .org-name {
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      font-size: 14px;
+      color: black;
+      letter-spacing: 0.28px;
+      line-height: 20px;
+    }
+
+    .org-type {
+      font-family: 'Roboto', sans-serif;
+      font-size: 12px;
+      color: var(--gray-500);
+      letter-spacing: 0.24px;
+      line-height: 16px;
+    }
+
+    .org-dropdown-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--divider);
+      margin: 0;
+      flex-shrink: 0;
+    }
+
+    /* DDS SidebarMenuButton */
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-family-product);
+      font-weight: 500;
+      font-size: var(--font-size-body-1);
+      color: var(--text-primary);
+      text-decoration: none;
+      letter-spacing: normal;
+      height: 32px;
+      flex-shrink: 0;
+      transition: background 100ms ease;
+    }
+
+    .nav-item:hover { background: rgba(0,0,0,0.06); }
+
+    .nav-item__label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* DDS SidebarMenuSub */
+    .nav-sub { display: flex; flex-direction: column; gap: 2px; }
+
+    /* DDS SidebarMenuSubButton */
+    .nav-subitem {
+      display: flex;
+      align-items: center;
+      padding: 0 8px 0 40px;
+      height: 28px;
+      border-radius: 6px;
+      font-family: var(--font-family-product);
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: normal;
+      flex-shrink: 0;
+      transition: background 100ms ease, color 100ms ease;
+    }
+
+    .nav-subitem:hover { background: rgba(0,0,0,0.06); color: var(--text-primary); }
+
+    .nav-subitem--active {
+      background: var(--gray-100);
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* ============================================================
+       CONTENT AREA
+    ============================================================ */
+    .content {
+      flex: 1;
+      min-width: 0;
+      padding: 28px 24px 64px 19px;
+      overflow-y: auto;
+    }
+
+    /* ============================================================
+       PAGE TITLE — Header-5 (21px/700)
+    ============================================================ */
+    .page-title {
+      font-size: var(--font-size-header-5);   /* 21px */
+      font-weight: var(--font-weight-bold);   /* 700 */
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+
+    /* ============================================================
+       SUBSCRIPTION SUMMARY BAR
+       SLA Performance card — border, rounded, p-16
+    ============================================================ */
+    .sub-bar {
+      background: white;
+      border: 1px solid var(--border-std);
+      border-radius: 4px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-shrink: 0;
+    }
+
+    .sub-bar__item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .sub-bar__label {
+      font-size: var(--font-size-chip);     /* 10px */
+      font-weight: var(--font-weight-semibold);  /* 500 */
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.15px;
+      line-height: 1;
+    }
+
+    .sub-bar__value {
+      font-size: 24px;   /* header-4 — ⚠️ NOT FROM KB (no --font-size-header-4) */
+      font-weight: var(--font-weight-bold);
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .sub-bar__value--disabled {
+      color: var(--text-disabled);
+    }
+
+    .sub-bar__els {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .sub-bar__els-note {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: var(--font-family-product);
+    }
+
+    .sub-bar__els-note a {
+      color: var(--primary-blue);
+      text-decoration: underline;
+      text-decoration-skip-ink: none;
+    }
+
+    /* ============================================================
+       TABS — DDS Tabs TabsList variant="line"
+    ============================================================ */
+    .tabs-bar {
+      display: flex;
+      border-bottom: 1px solid var(--divider);
+      margin-bottom: 32px;
+      flex-shrink: 0;
+      gap: 0;
+    }
+
+    /* DDS TabsTrigger (line variant) */
+    .tab {
+      padding: 0 16px;
+      height: 40px;
+      font-family: var(--font-family-product);
+      font-size: var(--font-size-body-1);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      border: none;
+      background: none;
+      letter-spacing: normal;
+      line-height: 40px;
+      white-space: nowrap;
+      transition: color 150ms ease;
+    }
+
+    .tab:hover { color: var(--text-primary); }
+
+    .tab--active {
+      color: var(--primary-blue);
+    }
+
+    .tab--active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary-blue);
+      border-radius: 2px 2px 0 0;
+    }
+
+    /* ============================================================
+       ACTIONS BAR — search + utility + CTA
+    ============================================================ */
+    .actions-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-shrink: 0;
+    }
+
+    /* DDS Search component */
+    .search-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1px solid var(--border-std);
+      border-radius: 6px;
+      padding: 0 12px;
+      height: 36px;
+      width: 244px;
+      flex-shrink: 0;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .search-field:focus-within {
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 1px var(--primary-blue);
+    }
+
+    .search-field__input {
+      flex: 1;
+      border: none;
+      background: none;
+      font-size: var(--font-size-body-1);
+      color: var(--text-primary);
+      outline: none;
+      font-family: var(--font-family-product);
+      letter-spacing: normal;
+    }
+
+    .search-field__input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .actions-bar__spacer { flex: 1; }
+
+    .learn-link {
+      font-size: var(--font-size-body-1);
+      font-family: var(--font-family-product);
+      color: var(--blue-600);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* DDS Button variant="default" */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--primary-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0 16px;
+      font-size: var(--font-size-body-1);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family-product);
+      cursor: pointer;
+      height: 36px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      letter-spacing: 0.15px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 150ms ease;
+    }
+
+    .btn-primary:hover { background: var(--blue-600); }
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--primary-blue);
+      outline-offset: 2px;
+    }
+
+    /* ============================================================
+       TABLE — CORE
+       MUI Table pattern: border-collapse, divider rows
+    ============================================================ */
+    .cust-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-family-product);
+      table-layout: auto;
+    }
+
+    /* ── DDS TableHeader / TableHead ── */
+    .cust-table thead tr {
+      border-bottom: 1px solid var(--divider);
+    }
+
+    .cust-table th {
+      padding: 0 var(--space-16);
+      height: 44px;
+      font-size: 12px;
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-secondary);
+      text-align: left;
+      letter-spacing: 0.05em;
+      line-height: 24px;
+      white-space: nowrap;
+      background: transparent;
+    }
+
+    .col-actions { width: 120px; }
+
+    /* ── DDS TableRow / TableCell ── */
+    .cust-table tbody tr {
+      border-bottom: 1px solid var(--divider);
+      transition: background 100ms ease;
+    }
+
+    .cust-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+
+    .cust-table td {
+      padding: var(--space-16);
+      vertical-align: middle;
+      font-size: var(--font-size-body-1);
+      color: var(--text-primary);
+      height: 52px;
+    }
+
+    /* ── Actions column ── */
+    .cell-actions {
+      width: 120px;
+      text-align: right;
+      position: relative;
+    }
+
+    /* ============================================================
+       NAME CELL — parent and standalone
+    ============================================================ */
+    .row-parent .cell-name,
+    .row-standalone .cell-name {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    /* ============================================================
+       CHEVRON TOGGLE BUTTON
+       Only appears on bulk parent rows
+    ============================================================ */
+    .chevron-btn {
+      width: 20px;
+      height: 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 0;
+      border-radius: 2px;
+    }
+
+    .chevron-btn:focus-visible {
+      outline: 2px solid var(--primary-blue);
+      outline-offset: 2px;
+    }
+
+    /* The icon within the button — rotates to indicate state */
+    .chevron-icon {
+      background-color: var(--gray-500);
+      width: 24px;
+      height: 24px;
+      transition: transform 0.2s ease;
+      /* aria-expanded="true"  → rotate(0deg)   = chevron pointing down */
+      /* aria-expanded="false" → rotate(-90deg) = chevron pointing right */
+    }
+
+    .chevron-btn[aria-expanded="false"] .chevron-icon {
+      transform: rotate(-90deg);
+    }
+
+    /* ============================================================
+       NAME LINK — blue underline (parent + standalone)
+    ============================================================ */
+    .name-link {
+      font-size: var(--font-size-body-1);  /* 14px */
+      font-weight: var(--font-weight-regular);
+      color: var(--primary-blue);
+      text-decoration: underline;
+      text-decoration-skip-ink: none;
+      white-space: nowrap;
+    }
+
+    .name-link:hover { color: var(--blue-600); }
+
+    /* ============================================================
+       CHILD ROW — styling
+    ============================================================ */
+    .row-child td {
+      background: var(--child-row-tint);   /* rgba(0,0,0,0.02) */
+    }
+
+    /* Child name cell: override padding for tree indent (16px base + 32px = 48px) */
+    .row-child .cell-name {
+      position: relative;
+      padding-left: 48px;   /* 16px base + 32px indent */
+      display: flex;
+      align-items: center;
+    }
+
+    /* ============================================================
+       TREE CONNECTOR LINE — decorative, aria-hidden
+       Absolutely positioned within the child name cell.
+
+       .tree-connector::before  = vertical segment (top → midpoint)
+       .tree-connector::after   = horizontal branch (midpoint → right)
+       .tree-connector--continues = vertical extends full height to next sibling
+    ============================================================ */
+    .tree-connector {
+      position: absolute;
+      left: 24px;      /* 16px cell padding + 8px → connector starts here */
+      top: 0;
+      bottom: 0;
+      width: 16px;
+      pointer-events: none;
+    }
+
+    /* Vertical segment — from top to midpoint (or full height on --continues) */
+    .tree-connector::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 50%;       /* last child: stops at midpoint */
+      width: 1px;
+      background: var(--tree-line);
+    }
+
+    /* Horizontal branch — at the midpoint */
+    .tree-connector::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: calc(50% - 0.5px);
+      width: 16px;
+      height: 1px;
+      background: var(--tree-line);
+    }
+
+    /* Middle children: vertical line extends to bottom (connects to next sibling) */
+    .tree-connector--continues::before {
+      bottom: 0;
+    }
+
+    /*
+     * Child name — clickable link that routes to the parent bulk editor.
+     * Visually matches parent name links (blue, underline) so users understand
+     * it is navigable. The JS handler shows the redirect toast before navigating.
+     */
+    .child-name-link {
+      font-size: var(--font-size-body-1);
+      font-weight: var(--font-weight-regular);
+      color: var(--primary-blue);
+      text-decoration: underline;
+      text-decoration-skip-ink: none;
+      white-space: nowrap;
+    }
+
+    .child-name-link:hover { color: var(--blue-600); }
+
+    /* ============================================================
+       REDIRECT TOAST — aligned to DDS Toaster (Sonner)
+       Sonner renders a white card with border + shadow in light mode.
+    ============================================================ */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border-std);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: var(--font-size-body-1);
+      font-family: var(--font-family-product);
+      line-height: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 540px;
+      width: max-content;
+      box-shadow:
+        0 4px 6px -1px rgba(0,0,0,0.1),
+        0 2px 4px -2px rgba(0,0,0,0.1);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease, transform 200ms ease;
+      z-index: 9999;
+    }
+
+    .toast--visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+
+    .toast__icon {
+      font-style: normal;
+      font-size: 16px;
+      flex-shrink: 0;
+      color: var(--primary-blue);
+    }
+
+    .toast__msg { flex: 1; color: var(--text-secondary); }
+
+    /* ============================================================
+       IMAGE/CHART CELL
+    ============================================================ */
+    .img-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .img-count {
+      font-size: 12px;
+      color: var(--text-primary);
+      font-weight: 400;
+      line-height: normal;
+    }
+
+    .img-names {
+      font-size: 12px;
+      line-height: normal;
+    }
+
+    .img-names a {
+      color: var(--primary-blue);
+      text-decoration: none;
+    }
+
+    .img-names a:hover { text-decoration: underline; }
+
+    .img-names .img-name-plain { color: var(--text-primary); }
+
+    /* ============================================================
+       CHIP — DDS Tag component
+       Aligned to Tag: gray-100 bg, gray-700 text, rounded-full
+    ============================================================ */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-4);
+      background: var(--chip-bg);        /* #f4f4f6 */
+      color: var(--chip-text);           /* #393f49 */
+      font-size: 12px;
+      font-weight: 400;
+      font-family: var(--font-family-product);
+      border-radius: 9999px;
+      padding: 2px 8px;
+      white-space: nowrap;
+      line-height: 16px;
+      border: 1px solid transparent;
+    }
+
+    /* Bulk chip — same visual style, label differentiates it */
+    .chip--bulk {
+      /* inherits .chip */
+    }
+
+    /* ============================================================
+       KEBAB MENU BUTTON — only on parent + standalone rows
+    ============================================================ */
+    .kebab-btn {
+      width: 24px;
+      height: 24px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      flex-shrink: 0;
+      padding: 0;
+    }
+
+    .kebab-btn:hover { background: rgba(0,0,0,0.08); }
+
+    .kebab-btn:focus-visible {
+      outline: 2px solid var(--primary-blue);
+      outline-offset: 2px;
+    }
+
+    .kebab-icon {
+      background-color: var(--text-primary);
+      width: 24px;
+      height: 24px;
+    }
+
+    /* ============================================================
+       KEBAB DROPDOWN MENU
+       Positioned relative to .cell-actions (position: relative above).
+       Hidden until aria-expanded="true" on the trigger button.
+    ============================================================ */
+    .kebab-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
+    /* DDS DropdownMenuContent */
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      background: white;
+      border: 1px solid var(--border-std);
+      border-radius: 6px;
+      box-shadow:
+        0 4px 6px -1px rgba(0,0,0,0.1),
+        0 2px 4px -2px rgba(0,0,0,0.1);
+      min-width: 8rem;
+      list-style: none;
+      padding: 4px;
+      z-index: 100;
+    }
+
+    .dropdown-menu[hidden] { display: none; }
+
+    /* DDS DropdownMenuItem */
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 6px 8px;
+      font-size: var(--font-size-body-1);
+      font-family: var(--font-family-product);
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      border-radius: 4px;
+      text-align: left;
+      cursor: pointer;
+      letter-spacing: normal;
+      line-height: 20px;
+      transition: background 100ms ease;
+    }
+
+    .dropdown-item:hover { background: var(--gray-100); }
+
+    /* Danger variant — Delete action */
+    .dropdown-item--danger { color: #e3293b; }
+    .dropdown-item--danger:hover { background: rgba(227,41,59,0.08); }
+
+    /* ============================================================
+       CASCADE DELETE CONFIRMATION DIALOG — DDS AlertDialog
+    ============================================================ */
+    .dialog-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      animation: fadeIn 150ms ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translate(-50%, -48%) scale(0.96); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+    .dialog-overlay[hidden] { display: none; }
+
+    /* DDS AlertDialogContent */
+    .dialog {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 512px;
+      width: calc(100% - 48px);
+      box-shadow:
+        0 20px 25px -5px rgba(0,0,0,0.1),
+        0 8px 10px -6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* DDS AlertDialogTitle */
+    .dialog__title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      font-family: var(--font-family-product);
+      letter-spacing: -0.015em;
+      line-height: 1.4;
+    }
+
+    /* DDS AlertDialogDescription */
+    .dialog__body {
+      font-size: var(--font-size-body-1);
+      color: var(--text-secondary);
+      line-height: 20px;
+      margin-bottom: 24px;
+      font-family: var(--font-family-product);
+    }
+
+    /* DDS AlertDialogFooter */
+    .dialog__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* DDS Button variant="outline" — dialog cancel */
+    .btn-cancel {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      height: 36px;
+      border: 1px solid var(--border-std);
+      border-radius: 6px;
+      background: white;
+      font-size: var(--font-size-body-1);
+      font-family: var(--font-family-product);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      cursor: pointer;
+      letter-spacing: 0.15px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: background 150ms ease;
+    }
+
+    .btn-cancel:hover { background: var(--gray-50, #fafafa); }
+    .btn-cancel:focus-visible {
+      outline: 2px solid var(--primary-blue);
+      outline-offset: 2px;
+    }
+
+    /* DDS Button variant="destructive" */
+    .btn-danger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      height: 36px;
+      border: none;
+      border-radius: 6px;
+      background: #e3293b;
+      font-size: var(--font-size-body-1);
+      font-family: var(--font-family-product);
+      font-weight: var(--font-weight-semibold);
+      color: white;
+      cursor: pointer;
+      letter-spacing: 0.15px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: background 150ms ease;
+    }
+
+    .btn-danger:hover { background: #c41f31; }
+    .btn-danger:focus-visible {
+      outline: 2px solid #e3293b;
+      outline-offset: 2px;
+    }
+
+    /* ============================================================
+       COLLAPSE ANIMATION
+       Child rows use `hidden` attribute for visibility, toggled by JS.
+       Chevron rotation (above) provides the visual animated cue.
+    ============================================================ */
+    .row-child[hidden] { display: none; }
+
+    /* ============================================================
+       EDIT WIZARD VIEW
+    ============================================================ */
+    #view-edit { display: block; }
+    #view-edit[hidden] { display: none; }
+    #view-list[hidden] { display: none; }
+
+    .edit-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 8px;
+    }
+
+    .edit-breadcrumb__link {
+      font-size: 14px;
+      color: var(--primary-blue);
+      text-decoration: underline;
+      text-decoration-skip-ink: none;
+      font-family: var(--font-family-product);
+      letter-spacing: 0.28px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .edit-breadcrumb__sep {
+      font-size: 14px;
+      color: var(--gray-500);
+      font-family: var(--font-family-product);
+    }
+
+    .edit-breadcrumb__current {
+      font-size: 14px;
+      font-weight: var(--font-weight-semibold);
+      color: black;
+      font-family: var(--font-family-product);
+      letter-spacing: 0.28px;
+    }
+
+    .edit-breadcrumb-divider {
+      height: 1px;
+      background: var(--divider);
+      margin: 0 -24px 28px -19px;
+    }
+
+    .edit-title {
+      font-size: var(--font-size-header-5);
+      font-weight: 900;
+      line-height: 28px;
+      color: black;
+      font-family: var(--font-family-product);
+      margin-bottom: 32px;
+    }
+
+    .wizard-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      max-width: 950px;
+    }
+
+    .step-section { display: flex; flex-direction: column; gap: 12px; }
+
+    .step-meta { display: flex; flex-direction: column; gap: 4px; }
+
+    .step-label {
+      font-size: var(--font-size-chip);
+      font-weight: var(--font-weight-semibold);
+      text-transform: uppercase;
+      letter-spacing: 0.15px;
+      line-height: 12px;
+      color: var(--text-primary);
+      font-family: var(--font-family-product);
+    }
+
+    .step-title-text {
+      font-size: 16px;
+      font-weight: var(--font-weight-bold);
+      line-height: 20px;
+      color: var(--text-primary);
+      font-family: var(--font-family-product);
+    }
+
+    .step-desc {
+      font-size: var(--font-size-body-1);
+      font-weight: var(--font-weight-regular);
+      line-height: 20px;
+      color: var(--gray-500);
+      font-family: var(--font-family-product);
+    }
+
+    /* DDS Card — collapsed step card (steps 1 + 2) */
+    .step-card {
+      border: 1px solid var(--border-std);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      background: white;
+    }
+
+    .step-card__body { display: flex; flex-direction: column; gap: 16px; flex: 1; min-width: 0; }
+
+    .step-card__row-label {
+      font-size: var(--font-size-body-1);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      font-family: var(--font-family-product);
+      margin-bottom: 6px;
+    }
+
+    .step-card__chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+    .step-card__image-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+    .step-card__image-row:last-child { margin-bottom: 0; }
+
+    .step-card__image-name { font-size: 14px; color: #393f49; font-family: var(--font-family-product); }
+    .step-card__image-version { font-size: 14px; color: var(--gray-500); font-family: var(--font-family-product); }
+
+    .step-card__image-icon { width: 16px; height: 16px; flex-shrink: 0; position: relative; display: inline-block; }
+
+    .dhi-badge-icon {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(100.71deg, #ab00a4 7.39%, #7d2eff 20.62%, #1d63ed 48.63%, #1c90ed 76.64%, #88d5c0 104.65%);
+      -webkit-mask-image: url('https://www.figma.com/api/mcp/asset/a4f4250f-4e15-4e64-9f6b-72599a1131ef');
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-size: 19.164px 21.794px;
+      -webkit-mask-position: 3px 1.068px;
+      mask-image: url('https://www.figma.com/api/mcp/asset/a4f4250f-4e15-4e64-9f6b-72599a1131ef');
+      mask-repeat: no-repeat;
+      mask-size: 19.164px 21.794px;
+      mask-position: 3px 1.068px;
+    }
+
+    /* DDS Button variant="outline" — used for step Edit + Back */
+    .btn-outlined {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-std);
+      border-radius: 6px;
+      padding: 0 16px;
+      height: 36px;
+      font-size: var(--font-size-body-1);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-family-product);
+      color: var(--text-primary);
+      background: white;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      letter-spacing: 0.15px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      transition: background 150ms ease;
+    }
+    .btn-outlined:hover { background: var(--gray-50, #fafafa); }
+    .btn-outlined:focus-visible {
+      outline: 2px solid var(--primary-blue);
+      outline-offset: 2px;
+    }
+
+    /* Small chip variant — DDS Tag, compact */
+    .chip-sm {
+      font-size: 11px;
+      font-family: var(--font-family-product);
+      font-weight: 400;
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      border-radius: 9999px;
+      padding: 1px 6px;
+      white-space: nowrap;
+      line-height: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border: 1px solid transparent;
+    }
+
+    .chip-sm-icon {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      display: inline-block;
+      background-color: #2c333f;
+    }
+
+    /* Step 3 — settings rows */
+    .settings-rows { display: flex; flex-direction: column; gap: 24px; }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 425px;
+      justify-content: space-between;
+    }
+
+    .settings-row__left { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .settings-row__label {
+      font-size: var(--font-size-body-1);
+      font-weight: var(--font-weight-semibold);
+      color: var(--text-primary);
+      font-family: var(--font-family-product);
+      white-space: nowrap;
+    }
+
+    .settings-row__value {
+      font-size: var(--font-size-body-1);
+      color: var(--text-secondary);
+      font-family: var(--font-family-product);
+      white-space: nowrap;
+    }
+
+    .settings-row__edit {
+      font-size: var(--font-size-body-1);
+      color: var(--primary-blue);
+      text-decoration: underline;
+      text-decoration-skip-ink: none;
+      font-family: var(--font-family-product);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      white-space: nowrap;
+    }
+
+    .step-actions { display: flex; gap: 12px; padding-top: 16px; }
+
+    /* Step 4 — future (greyed) */
+    .step-section--future .step-label,
+    .step-section--future .step-title-text,
+    .step-section--future .step-desc { color: var(--gray-500); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .page-footer {
+      background: var(--bg-secondary);
+      padding: 16px 40px;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      border-top: 1px solid var(--divider);
+      margin-top: auto;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .footer-link {
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      color: var(--gray-500);
+      text-decoration: none;
+      letter-spacing: 0.28px;
+      line-height: 20px;
+    }
+
+    .footer-copyright {
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      color: var(--gray-500);
+      letter-spacing: 0.28px;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ══════════════════════════════════════════════════════════
+       TOP NAV — node 11220:48860
+       64px, gradient #1c90ed → #1d63ed, border-b grey/200
+  ══════════════════════════════════════════════════════════ -->
+  <header class="topnav" role="banner">
+
+    <!-- Brand -->
+    <div class="topnav__brand">
+      <img
+        class="topnav__logo"
+        src="https://www.figma.com/api/mcp/asset/045496e7-aef5-45ea-a25d-773f16c1f335"
+        alt="Docker"
+      />
+      <span class="topnav__brand-text"><b>docker</b> hub</span>
+    </div>
+
+    <!-- Nav tabs -->
+    <nav class="topnav__nav" aria-label="Main navigation">
+      <a href="#" class="topnav__tab">Explore</a>
+      <a href="#" class="topnav__tab topnav__tab--active">MyHub</a>
+    </nav>
+
+    <!-- Right side: search + icons + avatar -->
+    <div class="topnav__right">
+
+      <div class="topnav__search" role="search" aria-label="Hub search">
+        <div class="icon-mask" style="
+          background-color: #e5f2fc;
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/df850849-3367-4df0-b02f-a3eeb5c28892');
+          --mask-size: 24px 24px;
+          --mask-pos: 0px 0px;
+        " aria-hidden="true"></div>
+        <span style="color: #e5f2fc; font-size: 14px;">Search Hub Marketplace</span>
+      </div>
+
+      <button class="topnav__icon-btn" aria-label="Help">
+        <div class="icon-mask" style="
+          background-color: white;
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/5119394f-e59f-4a85-bb72-9239544dc869');
+          --mask-size: 22px 22px;
+          --mask-pos: 1px 1px;
+        "></div>
+      </button>
+
+      <button class="topnav__icon-btn" aria-label="Notifications">
+        <div class="icon-mask" style="
+          background-color: white;
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/d53fec91-e8ca-474f-8112-62f8d3b31d70');
+          --mask-size: 19.478px 21px;
+          --mask-pos: 2.261px 1px;
+        "></div>
+      </button>
+
+      <button class="topnav__icon-btn" aria-label="Learning">
+        <div class="icon-mask" style="
+          background-color: white;
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/5498ea7f-db9b-4281-9f55-f7e41f22871c');
+          --mask-size: 22px 19.341px;
+          --mask-pos: 1px 2.734px;
+        "></div>
+      </button>
+
+      <button class="topnav__icon-btn" aria-label="Apps">
+        <div class="icon-mask" style="
+          background-color: white;
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/f3dfc47c-7cb9-4570-b67b-57f2edc7efbb');
+          --mask-size: 18px 18px;
+          --mask-pos: 3px 3px;
+        "></div>
+      </button>
+
+      <div class="topnav__avatar" aria-label="User account">D</div>
+    </div>
+
+  </header><!-- /.topnav -->
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN LAYOUT
+  ══════════════════════════════════════════════════════════ -->
+  <div class="main">
+
+    <!-- ═══════════════════════════════════════════════
+         SIDEBAR — node 11220:48885, 248px, bg-secondary
+    ═══════════════════════════════════════════════ -->
+    <aside class="sidebar" aria-label="Side navigation">
+
+      <!-- Org Switcher -->
+      <div class="org-switcher">
+        <div class="org-avatar" aria-hidden="true">
+          <div class="icon-mask" style="
+            background-color: white;
+            width: 24px; height: 24px;
+            --mask-url: url('https://www.figma.com/api/mcp/asset/1bf2cb41-b814-4f29-b27c-917bfe6b5f09');
+            --mask-size: 24px 24px;
+            --mask-pos: 0px 0px;
+          "></div>
+        </div>
+        <div class="org-info">
+          <div class="org-name">Moby Inc</div>
+          <div class="org-type">Organization</div>
+        </div>
+        <button class="org-dropdown-btn" aria-label="Switch organization">
+          <div class="icon-mask" style="
+            background-color: var(--gray-500);
+            width: 16px; height: 16px;
+            --mask-url: url('https://www.figma.com/api/mcp/asset/f5038ed3-0bfe-4714-ae11-22d395c15c16');
+            --mask-size: 24px 24px;
+            --mask-pos: 0px 0px;
+          " aria-hidden="true"></div>
+        </button>
+      </div>
+
+      <div class="sidebar-divider" aria-hidden="true"></div>
+
+      <!-- Repositories -->
+      <a href="#" class="nav-item">
+        <div class="icon-mask" style="
+          background-color: rgba(0,0,0,0.64);
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/6c3bcd10-874f-45b7-a399-e3650101ad77');
+          --mask-size: 20.001px 21.712px;
+          --mask-pos: 2px 1.144px;
+        " aria-hidden="true"></div>
+        <span class="nav-item__label">Repositories</span>
+      </a>
+
+      <!-- Hardened images (expanded) + sub-items -->
+      <div class="nav-sub">
+        <a href="#" class="nav-item" aria-expanded="true">
+          <div class="icon-mask" style="
+            background-color: rgba(0,0,0,0.64);
+            width: 24px; height: 24px;
+            --mask-url: url('https://www.figma.com/api/mcp/asset/0ee13256-3d64-4239-ba79-9b24e863dde3');
+            --mask-size: 19.164px 21.794px;
+            --mask-pos: 3px 1.068px;
+          " aria-hidden="true"></div>
+          <span class="nav-item__label">Hardened images</span>
+          <!-- ChevronUp = expanded -->
+          <div class="icon-mask" style="
+            background-color: rgba(0,0,0,0.64);
+            width: 24px; height: 24px;
+            --mask-url: url('https://www.figma.com/api/mcp/asset/a0fe267d-738b-4ed6-b57a-5fca82cfbb7e');
+            --mask-size: 14px 8px;
+            --mask-pos: 5px 8px;
+          " aria-hidden="true"></div>
+        </a>
+        <a href="#" class="nav-subitem">Catalog</a>
+        <a href="#" class="nav-subitem nav-subitem--active" aria-current="page">Manage</a>
+      </div>
+
+      <!-- Settings -->
+      <a href="#" class="nav-item">
+        <div class="icon-mask" style="
+          background-color: rgba(0,0,0,0.64);
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/b0962c8b-a253-4064-9c94-00d9a5fbdac0');
+          --mask-size: 22px 22px;
+          --mask-pos: 1px 1px;
+        " aria-hidden="true"></div>
+        <span class="nav-item__label">Settings</span>
+        <!-- ChevronDown = collapsed -->
+        <div class="icon-mask" style="
+          background-color: rgba(0,0,0,0.64);
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/47ba9a79-21c4-4904-b785-115372b986ce');
+          --mask-size: 14px 8px;
+          --mask-pos: 5px 8px;
+        " aria-hidden="true"></div>
+      </a>
+
+      <!-- Billing -->
+      <a href="#" class="nav-item">
+        <div class="icon-mask" style="
+          background-color: rgba(0,0,0,0.64);
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/27170084-7e11-49b8-a4a5-ef724ad84d83');
+          --mask-size: 22px 16px;
+          --mask-pos: 1px 4px;
+        " aria-hidden="true"></div>
+        <span class="nav-item__label">Billing</span>
+      </a>
+
+      <!-- Usage -->
+      <a href="#" class="nav-item">
+        <div class="icon-mask" style="
+          background-color: rgba(0,0,0,0.64);
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/a03f9fc1-b4ae-4a0e-8498-8a30a681f545');
+          --mask-size: 20px 20px;
+          --mask-pos: 2px 1.5px;
+        " aria-hidden="true"></div>
+        <span class="nav-item__label">Usage</span>
+      </a>
+
+      <!-- Manage organization -->
+      <a href="#" class="nav-item">
+        <div class="icon-mask" style="
+          background-color: rgba(0,0,0,0.64);
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/5e51ce6e-af93-4b77-9de3-91f4fc0c67e1');
+          --mask-size: 22px 19px;
+          --mask-pos: 1px 2px;
+        " aria-hidden="true"></div>
+        <span class="nav-item__label">Manage organization</span>
+        <!-- LinkExternal icon -->
+        <div class="icon-mask" style="
+          background-color: rgba(0,0,0,0.64);
+          width: 24px; height: 24px;
+          --mask-url: url('https://www.figma.com/api/mcp/asset/5426d10c-c99c-44d7-8b27-d6eed5759907');
+          --mask-size: 20px 20px;
+          --mask-pos: 2px 2px;
+        " aria-hidden="true"></div>
+      </a>
+
+    </aside><!-- /.sidebar -->
+
+
+    <!-- ═══════════════════════════════════════════════
+         CONTENT — main page area
+    ═══════════════════════════════════════════════ -->
+    <main class="content" id="main-content">
+    <div id="view-list">
+
+      <!-- Page title — node 11220:48887 -->
+      <h1 class="page-title">Manage Hardened Images</h1>
+
+      <!-- ────────────────────────────────────────────
+           SUBSCRIPTION SUMMARY BAR — node 11220:48889
+      ──────────────────────────────────────────── -->
+      <section class="sub-bar" aria-label="Subscription summary">
+
+        <div class="sub-bar__item">
+          <span class="sub-bar__label">Your subscription</span>
+          <span class="sub-bar__value">DHI Enterprise</span>
+        </div>
+
+        <div class="sub-bar__item">
+          <span class="sub-bar__label">Hardened images</span>
+          <span class="sub-bar__value">12 of 20</span>
+        </div>
+
+        <div class="sub-bar__item">
+          <span class="sub-bar__label">Customizations</span>
+          <span class="sub-bar__value">8 of 15</span>
+        </div>
+
+        <div class="sub-bar__item">
+          <span class="sub-bar__label">ELS (Extended lifecycle support) images</span>
+          <div class="sub-bar__els">
+            <span class="sub-bar__value sub-bar__value--disabled">Not available</span>
+            <span class="sub-bar__els-note">
+              <a href="#">Contact sales</a> to get access
+            </span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ────────────────────────────────────────────
+           TABS — node 11220:48910
+           MUI Tabs: Mirrored Images | Mirrored Helm charts | Customizations (active)
+      ──────────────────────────────────────────── -->
+      <div class="tabs-bar" role="tablist" aria-label="Manage hardened images sections">
+        <button class="tab" role="tab" aria-selected="false" id="tab-mirrors">Mirrored Images</button>
+        <button class="tab" role="tab" aria-selected="false" id="tab-helm">Mirrored Helm charts</button>
+        <button class="tab tab--active" role="tab" aria-selected="true" id="tab-customizations" aria-controls="panel-customizations">Customizations</button>
+      </div>
+
+      <!-- ────────────────────────────────────────────
+           ACTIONS BAR — node 11220:48911
+           Search + learn link + New customization CTA
+      ──────────────────────────────────────────── -->
+      <div class="actions-bar">
+
+        <div class="search-field" role="search">
+          <div class="icon-mask" style="
+            background-color: var(--gray-500);
+            width: 24px; height: 24px;
+            --mask-url: url('https://www.figma.com/api/mcp/asset/bff26d24-b5b1-4297-89b3-2ce67dbd4bf5');
+            --mask-size: 20px 20px;
+            --mask-pos: 2px 2px;
+          " aria-hidden="true"></div>
+          <input
+            class="search-field__input"
+            type="search"
+            placeholder="Search"
+            aria-label="Search customizations"
+          />
+        </div>
+
+        <div class="actions-bar__spacer"></div>
+
+        <a href="#" class="learn-link">Learn about customizations</a>
+
+        <button class="btn-primary" type="button">New customization</button>
+
+      </div>
+
+      <!-- ────────────────────────────────────────────────────────
+           REDIRECT TOAST — shown when a child name link is clicked.
+           JS populates .toast__msg and toggles .toast--visible.
+      ──────────────────────────────────────────────────────── -->
+      <div class="toast" role="status" aria-live="polite" aria-atomic="true" id="redirect-toast">
+        <span class="toast__icon" aria-hidden="true">ℹ</span>
+        <span class="toast__msg" id="redirect-toast-msg"></span>
+      </div>
+
+      <!-- ════════════════════════════════════════════════════════
+           CUSTOMIZATIONS TABLE — TREE MODEL
+           node 11220:48919 (<Table>)
+
+           Columns:  Name (flex) | Image/Chart (flex) | OS (flex) | Actions (120px)
+
+           Row kinds:
+             .row-parent      — bulk customization (has chevron + kebab)
+             .row-child       — individual child (tree indent, bulk chip, no kebab)
+             .row-standalone  — single non-bulk customization (no chevron, has kebab)
+
+           Accessibility:
+             - role="treegrid" on <table>
+             - role="row"      on <tr>
+             - aria-level="1"  on parent + standalone rows
+             - aria-level="2"  on child rows
+             - aria-expanded   on parent rows and their chevron buttons
+             - aria-hidden     on decorative tree-connector spans
+      ════════════════════════════════════════════════════════ -->
+      <table
+        class="cust-table"
+        role="treegrid"
+        aria-label="Customizations"
+        id="panel-customizations"
+        aria-labelledby="tab-customizations"
+      >
+        <colgroup>
+          <col />
+          <col />
+          <col />
+          <col style="width: 120px" />
+        </colgroup>
+
+        <!-- ── HEADER ── -->
+        <thead>
+          <tr role="row">
+            <th scope="col" role="columnheader">Name</th>
+            <th scope="col" role="columnheader">Image/Chart</th>
+            <th scope="col" role="columnheader">OS</th>
+            <th scope="col" role="columnheader" class="col-actions">
+              <span class="sr-only">Actions</span>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <!-- ════════════════════════════════════════
+               BULK PARENT: ca-certs
+               type=bulk, 3 children, expanded by default
+          ════════════════════════════════════════ -->
+          <tr
+            class="row-parent"
+            role="row"
+            aria-level="1"
+            aria-expanded="true"
+            data-row-id="ca-certs"
+          >
+            <!-- Name cell: chevron + blue link -->
+            <td class="cell-name">
+              <button
+                class="chevron-btn"
+                aria-expanded="true"
+                aria-label="Collapse ca-certs children"
+                data-parent-id="ca-certs"
+              >
+                <div class="icon-mask chevron-icon" style="
+                  --mask-url: url('https://www.figma.com/api/mcp/asset/47ba9a79-21c4-4904-b785-115372b986ce');
+                  --mask-size: 14px 8px;
+                  --mask-pos: 5px 8px;
+                " aria-hidden="true"></div>
+              </button>
+              <a href="#" class="name-link">ca-certs</a>
+            </td>
+
+            <!-- Image/Chart: count + linked names -->
+            <td>
+              <div class="img-cell">
+                <span class="img-count">3 images</span>
+                <div class="img-names">
+                  <a href="#">dhi-vault</a>,
+                  <a href="#">dhi-node</a>,
+                  <span class="img-name-plain">dhi-php</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- OS chip -->
+            <td><span class="chip">debian</span></td>
+
+            <!-- Actions: full kebab for parent rows -->
+            <td class="cell-actions">
+              <div class="kebab-wrapper">
+                <button
+                  class="kebab-btn"
+                  aria-label="Actions for ca-certs"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  data-row-name="ca-certs"
+                  data-row-type="parent"
+                  data-linked-row-id="ca-certs"
+                >
+                  <div class="icon-mask kebab-icon" style="
+                    --mask-url: url('https://www.figma.com/api/mcp/asset/a76a3ecf-763c-4f32-89d5-808243c74c5e');
+                    --mask-size: 4px 18px;
+                    --mask-pos: 10px 3px;
+                  " aria-hidden="true"></div>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-label="Actions for ca-certs" hidden>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="edit"
+                      data-href="/hardened-images/customizations/cust-bulk-ca-certs/edit">Edit</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="customize"
+                      data-href="/hardened-images/customizations/cust-bulk-ca-certs/customize">Customize</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item dropdown-item--danger" role="menuitem" data-action="delete">Delete</button>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ──────────────────────────────────────
+               CHILD: dhi-vault  (middle — continues)
+          ────────────────────────────────────────── -->
+          <tr
+            class="row-child"
+            role="row"
+            aria-level="2"
+            data-parent-id="ca-certs"
+          >
+            <td class="cell-name">
+              <!-- L-connector: continues = vertical line runs full height to next sibling -->
+              <span class="tree-connector tree-connector--continues" aria-hidden="true"></span>
+              <a
+                class="child-name-link"
+                href="/hardened-images/customizations/cust-bulk-ca-certs/edit"
+                data-parent-name="ca-certs"
+              >dhi-vault</a>
+            </td>
+            <td>
+              <span class="chip chip--bulk">Bulk: ca-certs</span>
+            </td>
+            <td><span class="chip">debian</span></td>
+            <!-- Actions cell: intentionally empty for child rows -->
+            <td class="cell-actions" aria-label="No actions available"></td>
+          </tr>
+
+          <!-- ──────────────────────────────────────
+               CHILD: dhi-node  (middle — continues)
+          ────────────────────────────────────────── -->
+          <tr
+            class="row-child"
+            role="row"
+            aria-level="2"
+            data-parent-id="ca-certs"
+          >
+            <td class="cell-name">
+              <span class="tree-connector tree-connector--continues" aria-hidden="true"></span>
+              <a
+                class="child-name-link"
+                href="/hardened-images/customizations/cust-bulk-ca-certs/edit"
+                data-parent-name="ca-certs"
+              >dhi-node</a>
+            </td>
+            <td>
+              <span class="chip chip--bulk">Bulk: ca-certs</span>
+            </td>
+            <td><span class="chip">debian</span></td>
+            <td class="cell-actions" aria-label="No actions available"></td>
+          </tr>
+
+          <!-- ──────────────────────────────────────
+               CHILD: dhi-php  (last in group — no --continues)
+               Vertical connector stops at midpoint (L-shape end)
+          ────────────────────────────────────────── -->
+          <tr
+            class="row-child"
+            role="row"
+            aria-level="2"
+            data-parent-id="ca-certs"
+          >
+            <td class="cell-name">
+              <!-- No --continues class: vertical line stops at midpoint -->
+              <span class="tree-connector" aria-hidden="true"></span>
+              <a
+                class="child-name-link"
+                href="/hardened-images/customizations/cust-bulk-ca-certs/edit"
+                data-parent-name="ca-certs"
+              >dhi-php</a>
+            </td>
+            <td>
+              <span class="chip chip--bulk">Bulk: ca-certs</span>
+            </td>
+            <td><span class="chip">debian</span></td>
+            <td class="cell-actions" aria-label="No actions available"></td>
+          </tr>
+
+          <!-- ════════════════════════════════════════
+               STANDALONE: ping-dev-libs
+               type=single, no parent, no chevron
+          ════════════════════════════════════════ -->
+          <tr
+            class="row-standalone"
+            role="row"
+            aria-level="1"
+          >
+            <td class="cell-name">
+              <a href="#" class="name-link">ping-dev-libs</a>
+            </td>
+            <td>
+              <div class="img-cell">
+                <span class="img-count">1 image</span>
+                <div class="img-names">
+                  <a href="#">dhi-valkey</a>
+                </div>
+              </div>
+            </td>
+            <td><span class="chip">alpine</span></td>
+            <td class="cell-actions">
+              <div class="kebab-wrapper">
+                <button
+                  class="kebab-btn"
+                  aria-label="Actions for ping-dev-libs"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  data-row-name="ping-dev-libs"
+                  data-row-type="standalone"
+                >
+                  <div class="icon-mask kebab-icon" style="
+                    --mask-url: url('https://www.figma.com/api/mcp/asset/a76a3ecf-763c-4f32-89d5-808243c74c5e');
+                    --mask-size: 4px 18px;
+                    --mask-pos: 10px 3px;
+                  " aria-hidden="true"></div>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-label="Actions for ping-dev-libs" hidden>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="edit"
+                      data-href="/hardened-images/customizations/cust-single-ping/edit">Edit</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="customize"
+                      data-href="/hardened-images/customizations/cust-single-ping/customize">Customize</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item dropdown-item--danger" role="menuitem" data-action="delete">Delete</button>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ════════════════════════════════════════
+               BULK PARENT: payments-team
+               type=bulk, 1 child, expanded by default
+          ════════════════════════════════════════ -->
+          <tr
+            class="row-parent"
+            role="row"
+            aria-level="1"
+            aria-expanded="true"
+            data-row-id="payments-team"
+          >
+            <td class="cell-name">
+              <button
+                class="chevron-btn"
+                aria-expanded="true"
+                aria-label="Collapse payments-team children"
+                data-parent-id="payments-team"
+              >
+                <div class="icon-mask chevron-icon" style="
+                  --mask-url: url('https://www.figma.com/api/mcp/asset/47ba9a79-21c4-4904-b785-115372b986ce');
+                  --mask-size: 14px 8px;
+                  --mask-pos: 5px 8px;
+                " aria-hidden="true"></div>
+              </button>
+              <a href="#" class="name-link">payments-team</a>
+            </td>
+            <td>
+              <div class="img-cell">
+                <span class="img-count">1 image</span>
+                <div class="img-names">
+                  <a href="#">dhi-tomcat</a>
+                </div>
+              </div>
+            </td>
+            <td><span class="chip">debian</span></td>
+            <td class="cell-actions">
+              <div class="kebab-wrapper">
+                <button
+                  class="kebab-btn"
+                  aria-label="Actions for payments-team"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  data-row-name="payments-team"
+                  data-row-type="parent"
+                  data-linked-row-id="payments-team"
+                >
+                  <div class="icon-mask kebab-icon" style="
+                    --mask-url: url('https://www.figma.com/api/mcp/asset/a76a3ecf-763c-4f32-89d5-808243c74c5e');
+                    --mask-size: 4px 18px;
+                    --mask-pos: 10px 3px;
+                  " aria-hidden="true"></div>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-label="Actions for payments-team" hidden>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="edit"
+                      data-href="/hardened-images/customizations/cust-bulk-payments/edit">Edit</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="customize"
+                      data-href="/hardened-images/customizations/cust-bulk-payments/customize">Customize</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item dropdown-item--danger" role="menuitem" data-action="delete">Delete</button>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+
+          <!-- ──────────────────────────────────────
+               CHILD: dhi-tomcat  (only + last child)
+               Vertical connector stops at midpoint (no --continues)
+          ────────────────────────────────────────── -->
+          <tr
+            class="row-child"
+            role="row"
+            aria-level="2"
+            data-parent-id="payments-team"
+          >
+            <td class="cell-name">
+              <span class="tree-connector" aria-hidden="true"></span>
+              <a
+                class="child-name-link"
+                href="/hardened-images/customizations/cust-bulk-payments/edit"
+                data-parent-name="payments-team"
+              >dhi-tomcat</a>
+            </td>
+            <td>
+              <span class="chip chip--bulk">Bulk: payments-team</span>
+            </td>
+            <td><span class="chip">debian</span></td>
+            <td class="cell-actions" aria-label="No actions available"></td>
+          </tr>
+
+          <!-- ════════════════════════════════════════
+               STANDALONE: chart references
+               type=single, no OS (Figma: empty cell)
+          ════════════════════════════════════════ -->
+          <tr
+            class="row-standalone"
+            role="row"
+            aria-level="1"
+          >
+            <td class="cell-name">
+              <a href="#" class="name-link">chart references</a>
+            </td>
+            <td>
+              <div class="img-cell">
+                <span class="img-count">3 charts</span>
+                <div class="img-names">
+                  <a href="#">dhi-valkey-chart</a>,
+                  <a href="#">dhi-redis-ha-chart</a>,
+                  <span class="img-name-plain">dhi-traefik-chart</span>
+                </div>
+              </div>
+            </td>
+            <td><!-- no OS --></td>
+            <td class="cell-actions">
+              <div class="kebab-wrapper">
+                <button
+                  class="kebab-btn"
+                  aria-label="Actions for chart references"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  data-row-name="chart references"
+                  data-row-type="standalone"
+                >
+                  <div class="icon-mask kebab-icon" style="
+                    --mask-url: url('https://www.figma.com/api/mcp/asset/a76a3ecf-763c-4f32-89d5-808243c74c5e');
+                    --mask-size: 4px 18px;
+                    --mask-pos: 10px 3px;
+                  " aria-hidden="true"></div>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-label="Actions for chart references" hidden>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="edit"
+                      data-href="/hardened-images/customizations/cust-single-charts/edit">Edit</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item" role="menuitem" data-action="customize"
+                      data-href="/hardened-images/customizations/cust-single-charts/customize">Customize</button>
+                  </li>
+                  <li role="none">
+                    <button class="dropdown-item dropdown-item--danger" role="menuitem" data-action="delete">Delete</button>
+                  </li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table><!-- /.cust-table -->
+
+    </div><!-- /#view-list -->
+
+    <!-- ════════════════════════════════════════════════════════════
+         EDIT WIZARD VIEW — shown when Edit is clicked on a row
+         Based on Figma screen 1.9 (node 11220:48344)
+    ════════════════════════════════════════════════════════════ -->
+    <div id="view-edit" hidden>
+
+      <!-- Breadcrumb -->
+      <nav class="edit-breadcrumb" aria-label="Breadcrumb">
+        <button class="edit-breadcrumb__link" id="edit-breadcrumb-back">Docker Hardened Images</button>
+        <span class="edit-breadcrumb__sep">/</span>
+        <span class="edit-breadcrumb__current">Edit customization</span>
+      </nav>
+      <div class="edit-breadcrumb-divider" aria-hidden="true"></div>
+
+      <h1 class="edit-title">Customize your hardened image</h1>
+
+      <div class="wizard-steps">
+
+        <!-- ── STEP 1: Select base image or chart (collapsed) ── -->
+        <div class="step-section">
+          <div class="step-meta">
+            <span class="step-label">Step 1</span>
+            <h2 class="step-title-text">Select base image or chart</h2>
+          </div>
+          <div class="step-card">
+            <div class="step-card__body">
+              <div style="font-size:14px;font-weight:500;color:black;font-family:var(--font-family-product);margin-bottom:4px;">Image versions</div>
+              <div class="step-card__image-row">
+                <span class="step-card__image-icon"><span class="dhi-badge-icon"></span></span>
+                <span class="step-card__image-name">dhi-node</span>
+                <span class="step-card__image-version">Node.js 25.x</span>
+                <span class="chip chip-sm">debian 13</span>
+              </div>
+              <div class="step-card__image-row">
+                <span class="step-card__image-icon"><span class="dhi-badge-icon"></span></span>
+                <span class="step-card__image-name">dhi-go</span>
+                <span class="step-card__image-version">Go 1.25.x</span>
+                <span class="chip chip-sm">debian 13</span>
+              </div>
+            </div>
+            <button class="btn-outlined">Edit</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 2: Add packages (collapsed) ── -->
+        <div class="step-section">
+          <div class="step-meta">
+            <span class="step-label">Step 2</span>
+            <h2 class="step-title-text">Add packages</h2>
+          </div>
+          <div class="step-card">
+            <div class="step-card__body">
+              <!-- Packages -->
+              <div>
+                <div class="step-card__row-label">Packages</div>
+                <div class="step-card__chips">
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/adecbc94-c192-4d8c-8e92-2b317286dc80');-webkit-mask-repeat:no-repeat;-webkit-mask-size:24px 24px;-webkit-mask-position:0 0;mask-image:url('https://www.figma.com/api/mcp/asset/adecbc94-c192-4d8c-8e92-2b317286dc80');mask-repeat:no-repeat;mask-size:24px 24px;mask-position:0 0;"></span>ping
+                  </span>
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/adecbc94-c192-4d8c-8e92-2b317286dc80');-webkit-mask-repeat:no-repeat;-webkit-mask-size:24px 24px;-webkit-mask-position:0 0;mask-image:url('https://www.figma.com/api/mcp/asset/adecbc94-c192-4d8c-8e92-2b317286dc80');mask-repeat:no-repeat;mask-size:24px 24px;mask-position:0 0;"></span>vim
+                  </span>
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/adecbc94-c192-4d8c-8e92-2b317286dc80');-webkit-mask-repeat:no-repeat;-webkit-mask-size:24px 24px;-webkit-mask-position:0 0;mask-image:url('https://www.figma.com/api/mcp/asset/adecbc94-c192-4d8c-8e92-2b317286dc80');mask-repeat:no-repeat;mask-size:24px 24px;mask-position:0 0;"></span>package
+                  </span>
+                </div>
+              </div>
+              <!-- OCI artifacts -->
+              <div>
+                <div class="step-card__row-label">OCI artifacts</div>
+                <div class="step-card__chips">
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/5e3d90e5-e0f7-41b2-a0f4-4285d146e56d');-webkit-mask-repeat:no-repeat;-webkit-mask-size:20.001px 21.712px;-webkit-mask-position:2px 1.144px;mask-image:url('https://www.figma.com/api/mcp/asset/5e3d90e5-e0f7-41b2-a0f4-4285d146e56d');mask-repeat:no-repeat;mask-size:20.001px 21.712px;mask-position:2px 1.144px;"></span>moby/ca-certs
+                  </span>
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/5e3d90e5-e0f7-41b2-a0f4-4285d146e56d');-webkit-mask-repeat:no-repeat;-webkit-mask-size:20.001px 21.712px;-webkit-mask-position:2px 1.144px;mask-image:url('https://www.figma.com/api/mcp/asset/5e3d90e5-e0f7-41b2-a0f4-4285d146e56d');mask-repeat:no-repeat;mask-size:20.001px 21.712px;mask-position:2px 1.144px;"></span>moby/internal-packages
+                  </span>
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/5e3d90e5-e0f7-41b2-a0f4-4285d146e56d');-webkit-mask-repeat:no-repeat;-webkit-mask-size:20.001px 21.712px;-webkit-mask-position:2px 1.144px;mask-image:url('https://www.figma.com/api/mcp/asset/5e3d90e5-e0f7-41b2-a0f4-4285d146e56d');mask-repeat:no-repeat;mask-size:20.001px 21.712px;mask-position:2px 1.144px;"></span>moby/team-package
+                  </span>
+                </div>
+              </div>
+              <!-- Scripts -->
+              <div>
+                <div class="step-card__row-label">Scripts</div>
+                <div class="step-card__chips">
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/9b58435b-e500-4d2b-873d-bc9ab8c6bf92');-webkit-mask-repeat:no-repeat;-webkit-mask-size:18px 22px;-webkit-mask-position:3px 1px;mask-image:url('https://www.figma.com/api/mcp/asset/9b58435b-e500-4d2b-873d-bc9ab8c6bf92');mask-repeat:no-repeat;mask-size:18px 22px;mask-position:3px 1px;"></span>/usr/lib/ssl/node.cnf
+                  </span>
+                  <span class="chip-sm">
+                    <span class="chip-sm-icon" style="-webkit-mask-image:url('https://www.figma.com/api/mcp/asset/9b58435b-e500-4d2b-873d-bc9ab8c6bf92');-webkit-mask-repeat:no-repeat;-webkit-mask-size:18px 22px;-webkit-mask-position:3px 1px;mask-image:url('https://www.figma.com/api/mcp/asset/9b58435b-e500-4d2b-873d-bc9ab8c6bf92');mask-repeat:no-repeat;mask-size:18px 22px;mask-position:3px 1px;"></span>etc/something/test.json
+                  </span>
+                </div>
+              </div>
+            </div>
+            <button class="btn-outlined">Edit</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 3: Configure image settings (active/expanded) ── -->
+        <div class="step-section">
+          <div class="step-meta">
+            <span class="step-label">Step 3</span>
+            <h2 class="step-title-text">Configure image settings</h2>
+            <p class="step-desc">Define labels, annotations, and environment variables. Changes apply to all selected images.</p>
+          </div>
+          <div class="settings-rows">
+            <div class="settings-row">
+              <div class="settings-row__left">
+                <span class="settings-row__label">ENV variables</span>
+                <span class="settings-row__value">Inherit from base image(s)</span>
+              </div>
+              <button class="settings-row__edit">Edit</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row__left">
+                <span class="settings-row__label">Labels</span>
+                <span class="settings-row__value">Inherit from base image(s)</span>
+              </div>
+              <button class="settings-row__edit">Edit</button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row__left">
+                <span class="settings-row__label">Annotations</span>
+                <span class="settings-row__value">Inherit from base image(s)</span>
+              </div>
+              <button class="settings-row__edit">Edit</button>
+            </div>
+          </div>
+          <div class="step-actions">
+            <button class="btn-outlined" id="edit-back-btn">Back</button>
+            <button class="btn-primary">Next: Review</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 4: Review configuration (future/locked) ── -->
+        <div class="step-section step-section--future">
+          <div class="step-meta">
+            <span class="step-label">Step 4</span>
+            <h2 class="step-title-text">Review configuration</h2>
+            <p class="step-desc">Review the image version, packages, and settings you selected before creating your custom image.</p>
+          </div>
+        </div>
+
+      </div><!-- /.wizard-steps -->
+    </div><!-- /#view-edit -->
+
+    </main><!-- /.content -->
+  </div><!-- /.main -->
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       FOOTER — node 11002:1868
+  ══════════════════════════════════════════════════════════ -->
+  <footer class="page-footer" role="contentinfo">
+    <div class="footer-links">
+      <span class="footer-copyright">© 2023 Docker Inc. All rights reserved.</span>
+      <a href="#" class="footer-link">Terms of Service</a>
+      <a href="#" class="footer-link">Subscription Service Agreement</a>
+      <a href="#" class="footer-link">Cookie Settings</a>
+      <a href="#" class="footer-link">Privacy</a>
+      <a href="#" class="footer-link">Legal</a>
+    </div>
+  </footer>
+
+</div><!-- /.page -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     CASCADE DELETE CONFIRMATION DIALOG
+     Shown when clicking Delete on a parent or standalone row.
+     JS populates #dialog-title and #dialog-body before opening.
+════════════════════════════════════════════════════════════ -->
+<div class="dialog-overlay" id="delete-dialog-overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-body">
+    <h2 class="dialog__title" id="dialog-title">Delete customization?</h2>
+    <p class="dialog__body" id="dialog-body"></p>
+    <div class="dialog__footer">
+      <button class="btn-cancel" id="dialog-cancel" type="button">Cancel</button>
+      <button class="btn-danger" id="dialog-confirm" type="button">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     PROTOTYPE INTERACTIONS
+
+     1. EXPAND/COLLAPSE — chevron buttons toggle child row visibility
+     2. CHILD EDIT ROUTING — clicking a child name link:
+          a. Intercepts the navigation
+          b. Builds the toast message ("managed as part of bulk…")
+          c. Shows the toast (animates in)
+          d. After 2.4s, navigates to the parent bulk editor URL
+          e. Toast auto-dismisses after 3s if still visible
+     3. KEBAB DROPDOWN — open/close on click, close on outside click / Escape
+     4. DROPDOWN ACTIONS — Edit navigates, Delete opens confirmation dialog
+     5. CASCADE DELETE DIALOG — confirm removes row(s) from DOM + shows toast
+════════════════════════════════════════════════════════════ -->
+<script>
+  (function () {
+    'use strict';
+
+    // ── VIEW SWITCHER ────────────────────────────────────────────────────
+    var viewList = document.getElementById('view-list');
+    var viewEdit = document.getElementById('view-edit');
+
+    function showEditView() {
+      viewList.hidden = true;
+      viewEdit.hidden = false;
+      window.scrollTo(0, 0);
+    }
+
+    function showListView() {
+      viewEdit.hidden = true;
+      viewList.hidden = false;
+      window.scrollTo(0, 0);
+    }
+
+    document.getElementById('edit-back-btn').addEventListener('click', showListView);
+    document.getElementById('edit-breadcrumb-back').addEventListener('click', showListView);
+
+    // ── 1. EXPAND / COLLAPSE ────────────────────────────────────────────
+    document.querySelectorAll('.chevron-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var parentTr   = btn.closest('tr[data-row-id]');
+        var parentId   = parentTr.dataset.rowId;
+        var isExpanded = btn.getAttribute('aria-expanded') === 'true';
+        var nowExpanded = !isExpanded;
+
+        btn.setAttribute('aria-expanded', String(nowExpanded));
+        parentTr.setAttribute('aria-expanded', String(nowExpanded));
+
+        var rowName = parentTr.querySelector('.name-link').textContent.trim();
+        btn.setAttribute('aria-label',
+          (nowExpanded ? 'Collapse ' : 'Expand ') + rowName + ' children'
+        );
+
+        document.querySelectorAll('tr[data-parent-id="' + parentId + '"]')
+          .forEach(function (row) { row.hidden = !nowExpanded; });
+      });
+    });
+
+    // ── 2. CHILD EDIT ROUTING ───────────────────────────────────────────
+    var toast      = document.getElementById('redirect-toast');
+    var toastMsg   = document.getElementById('redirect-toast-msg');
+    var toastTimer = null;
+
+    /**
+     * Show the toast, optionally navigate to `destUrl` after `delay` ms.
+     * Mirror of guardCustomizationEdit() + buildRedirectToast() in
+     * site/src/lib/customization-routing.ts.
+     */
+    function showToast(message, destUrl, delay) {
+      if (toastTimer) { clearTimeout(toastTimer); }
+
+      toastMsg.textContent = message;
+      toast.classList.add('toast--visible');
+
+      if (destUrl && delay) {
+        toastTimer = setTimeout(function () {
+          window.location.href = destUrl;
+        }, delay);
+      }
+
+      setTimeout(function () {
+        toast.classList.remove('toast--visible');
+        toastTimer = null;
+      }, (delay || 0) + 3000);
+    }
+
+    document.querySelectorAll('.child-name-link').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        var parentName = link.dataset.parentName;
+        var message =
+          'This customization is managed as part of bulk customization \u201c' +
+          parentName + '\u201d. Redirecting\u2026';
+        showToast(message, null, 0);
+        if (toastTimer) { clearTimeout(toastTimer); }
+        toastTimer = setTimeout(function () {
+          toast.classList.remove('toast--visible');
+          toastTimer = null;
+          showEditView();
+        }, 2400);
+      });
+    });
+
+    // ── 3. KEBAB DROPDOWN ───────────────────────────────────────────────
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.kebab-btn[aria-expanded="true"]').forEach(function (btn) {
+        btn.setAttribute('aria-expanded', 'false');
+        var menu = btn.nextElementSibling;
+        if (menu && menu.classList.contains('dropdown-menu')) { menu.hidden = true; }
+      });
+    }
+
+    document.querySelectorAll('.kebab-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var isOpen = btn.getAttribute('aria-expanded') === 'true';
+        closeAllDropdowns();
+        if (!isOpen) {
+          btn.setAttribute('aria-expanded', 'true');
+          var menu = btn.nextElementSibling;
+          if (menu && menu.classList.contains('dropdown-menu')) {
+            menu.hidden = false;
+            var first = menu.querySelector('.dropdown-item');
+            if (first) { first.focus(); }
+          }
+        }
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function () { closeAllDropdowns(); });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeAllDropdowns(); }
+    });
+
+    // ── 4 & 5. DROPDOWN ACTIONS + CASCADE DELETE DIALOG ─────────────────
+
+    var deleteOverlay  = document.getElementById('delete-dialog-overlay');
+    var dialogTitle    = document.getElementById('dialog-title');
+    var dialogBody     = document.getElementById('dialog-body');
+    var dialogConfirm  = document.getElementById('dialog-confirm');
+    var dialogCancel   = document.getElementById('dialog-cancel');
+    var pendingRows    = [];   // rows to remove when confirm is clicked
+
+    function openDeleteDialog(title, body, rowsToDelete) {
+      dialogTitle.textContent = title;
+      dialogBody.textContent  = body;
+      pendingRows = rowsToDelete;
+      deleteOverlay.hidden = false;
+      dialogConfirm.focus();
+    }
+
+    function closeDeleteDialog() {
+      deleteOverlay.hidden = true;
+      pendingRows = [];
+    }
+
+    dialogCancel.addEventListener('click', closeDeleteDialog);
+
+    // Click outside the dialog card closes it
+    deleteOverlay.addEventListener('click', function (e) {
+      if (e.target === deleteOverlay) { closeDeleteDialog(); }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !deleteOverlay.hidden) { closeDeleteDialog(); }
+    });
+
+    dialogConfirm.addEventListener('click', function () {
+      var count = pendingRows.length;
+      pendingRows.forEach(function (row) { row.remove(); });
+      closeDeleteDialog();
+      showToast(
+        count === 1
+          ? 'Customization deleted.'
+          : count + ' customizations deleted.',
+        null, 0
+      );
+    });
+
+    // Handle menu item clicks (Edit, Customize, Delete)
+    document.querySelectorAll('.dropdown-item').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action     = item.dataset.action;
+        var wrapper    = item.closest('.kebab-wrapper');
+        var btn        = wrapper.querySelector('.kebab-btn');
+        var rowName    = btn.dataset.rowName;
+        var rowType    = btn.dataset.rowType;
+        var linkedId   = btn.dataset.linkedRowId;
+
+        closeAllDropdowns();
+
+        if (action === 'edit' || action === 'customize') {
+          showEditView();
+          return;
+        }
+
+        if (action === 'delete') {
+          var parentRow = btn.closest('tr');
+          var toDelete  = [parentRow];
+          var bodyText;
+
+          if (rowType === 'parent' && linkedId) {
+            // Cascade: collect child rows
+            var childNames = [];
+            document.querySelectorAll('tr[data-parent-id="' + linkedId + '"]')
+              .forEach(function (childRow) {
+                toDelete.push(childRow);
+                var link = childRow.querySelector('.child-name-link');
+                if (link) { childNames.push(link.textContent.trim()); }
+              });
+
+            var n = childNames.length;
+            if (n === 0) {
+              bodyText = 'Delete bulk customization \u201c' + rowName + '\u201d? This action cannot be undone.';
+            } else {
+              bodyText =
+                'Deleting \u201c' + rowName + '\u201d will also permanently remove ' +
+                n + ' child customization' + (n === 1 ? '' : 's') +
+                ' (' + childNames.join(', ') + '). This action cannot be undone.';
+            }
+          } else {
+            bodyText = 'Delete customization \u201c' + rowName + '\u201d? This action cannot be undone.';
+          }
+
+          openDeleteDialog('Delete customization?', bodyText, toDelete);
+        }
+      });
+    });
+
+  })();
+</script>
+
+</body>
+</html>

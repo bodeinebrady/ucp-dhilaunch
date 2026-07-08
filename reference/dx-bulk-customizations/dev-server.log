@@ -1,0 +1,49 @@
+
+  VITE v7.3.2  ready in 195 ms
+
+  ➜  Local:   http://localhost:5199/
+  ➜  Network: use --host to expose
+11:18:52 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:18:52 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:18:52 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:05 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:05 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:05 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:09 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:09 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:09 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:13 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:13 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:13 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:16 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:16 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:16 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:21 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:21 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:21 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:28 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:28 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:28 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:38 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:38 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:38 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:19:42 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:19:42 a.m. [vite] (client) hmr invalidate /src/components/ImageConfigPreview.tsx Could not Fast Refresh ("SCENARIO_LABELS" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+11:19:42 a.m. [vite] (client) hmr update /src/pages/BulkCustomizationsV2.tsx
+11:20:08 a.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+11:20:27 a.m. [vite] (client) hmr update /src/index.css, /src/components/EnvironmentPreview.tsx
+12:11:40 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+12:11:57 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+12:12:12 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+12:12:23 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+12:12:48 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+12:13:35 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+12:32:00 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:11:38 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:11:43 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:11:48 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:11:56 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:13:43 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:32:04 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:36:45 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
+2:43:17 p.m. [vite] (client) hmr update /src/index.css, /src/components/ImageConfigPreview.tsx
