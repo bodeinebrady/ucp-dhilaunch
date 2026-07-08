@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "trident": {
-      "type": "http",
-      "url": "https://dds-trident.vercel.app/api/mcp"
-    }
-  }
-}
