@@ -6,4 +6,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: '/prototype/',
   appType: 'spa',
+  build: {
+    outDir: 'dist/prototype',
+    emptyOutDir: true,
+  },
 })

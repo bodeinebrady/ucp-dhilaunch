@@ -1,5 +1,8 @@
 {
+  "redirects": [
+    { "source": "/", "destination": "/prototype/", "permanent": false }
+  ],
   "rewrites": [
-    { "source": "/prototype/:path*", "destination": "/prototype/index.html" }
+    { "source": "/prototype/(.*)", "destination": "/prototype/index.html" }
   ]
 }
