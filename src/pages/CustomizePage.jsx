@@ -1417,8 +1417,10 @@ export default function CustomizePage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {step === 3 && (
               <button
-                onClick={() => navigate('/mirror')}
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '0.875rem', fontWeight: 520, fontFamily: 'inherit', padding: '9px 0' }}
+                onClick={() => navigate('/manage')}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '0.875rem', fontWeight: 520, fontFamily: 'inherit', padding: '9px 0', transition: 'color 0.12s' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#374151'}
+                onMouseLeave={e => e.currentTarget.style.color = '#6b7280'}
               >
                 Build customization
               </button>
@@ -1429,7 +1431,7 @@ export default function CustomizePage() {
                   <button
                     onClick={() => {
                       if (isDisabled) return
-                      if (step === 4) navigate('/mirror')
+                      if (step === 4) navigate('/manage')
                       else setStep(s => s + 1)
                     }}
                     disabled={isDisabled}

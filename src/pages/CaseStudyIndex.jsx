@@ -25,11 +25,11 @@ const PROJECTS = [
     external: false,
   },
   {
-    id: 'dhi-self-serve',
-    color: '#1d63ed',
-    label: 'DHI Self-Serve',
-    desc: 'Use this image flow. Mirror, customize, and pull Docker Hardened Images — trial journeys, entitlement states, and PLG motion.',
-    href: '/dhi-self-serve',
+    id: 'manage',
+    color: '#059669',
+    label: 'Manage Hardened Images',
+    desc: 'The org-level management view. Mirror status, customizations, vulnerability counts, and compliance at a glance.',
+    href: '/manage',
     external: false,
   },
   {

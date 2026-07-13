@@ -8,6 +8,7 @@ import CatalogPage from './pages/CatalogPage'
 import ImageDetailPage from './pages/ImageDetailPage'
 import MirrorDetailPage from './pages/MirrorDetailPage'
 import CustomizePage from './pages/CustomizePage'
+import ManagePage from './pages/ManagePage'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/catalog/:slug" element={<ImageDetailPage />} />
         <Route path="/mirror" element={<MirrorDetailPage />} />
         <Route path="/customize" element={<CustomizePage />} />
+        <Route path="/manage" element={<ManagePage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>
