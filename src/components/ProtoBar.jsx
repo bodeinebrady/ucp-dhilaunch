@@ -1,59 +1,64 @@
 import { useNavigate } from 'react-router-dom'
 
+// Top global navigation strip — 1:1 with ucp-self's NavBar.
+// A light translucent bar whose back link returns to the case-study index.
+// Kept in-flow (not position:fixed) since it sits above DHI's sticky Navbar.
+
 export default function ProtoBar({ label }) {
   const navigate = useNavigate()
 
   return (
     <div style={{
-      height: 36,
-      background: '#ffffff',
+      height: 44,
+      background: 'rgba(255,255,255,0.92)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid rgba(11,11,15,0.08)',
       display: 'flex',
       alignItems: 'center',
-      gap: 12,
-      padding: '0 24px',
+      justifyContent: 'space-between',
+      padding: '0 20px',
       flexShrink: 0,
     }}>
+      {/* Back link — returns to the case-study index */}
       <button
         onClick={() => navigate('/')}
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: 6,
-          background: 'none',
+          background: 'transparent',
           border: 'none',
           cursor: 'pointer',
-          padding: '3px 6px',
-          margin: '-3px -6px',
-          borderRadius: 4,
-          fontSize: '0.75rem',
-          fontWeight: 600,
-          color: '#7d2eff',
-          fontFamily: 'inherit',
-          transition: 'opacity 0.12s',
+          padding: 0,
+          fontFamily: "'Fira Mono', monospace",
+          fontSize: 11,
+          fontWeight: 500,
+          color: 'rgba(11,11,15,0.4)',
+          letterSpacing: '0.02em',
+          transition: 'color 0.12s',
         }}
-        onMouseEnter={e => e.currentTarget.style.opacity = '0.7'}
-        onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        onMouseEnter={e => e.currentTarget.style.color = 'rgba(11,11,15,0.8)'}
+        onMouseLeave={e => e.currentTarget.style.color = 'rgba(11,11,15,0.4)'}
       >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M7.5 2L3.5 6l4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
         Case Study
       </button>
 
+      {/* Current context label */}
       {label && (
-        <>
-          <div style={{ width: 1, height: 14, background: 'rgba(11,11,15,0.12)' }} />
-          <span style={{
-            fontSize: '0.6875rem',
-            fontWeight: 700,
-            letterSpacing: '0.06em',
-            textTransform: 'uppercase',
-            color: '#7d2eff',
-          }}>
-            {label}
-          </span>
-        </>
+        <span style={{
+          fontFamily: "'Fira Mono', monospace",
+          fontSize: 10,
+          fontWeight: 600,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: 'rgba(11,11,15,0.25)',
+        }}>
+          {label}
+        </span>
       )}
     </div>
   )

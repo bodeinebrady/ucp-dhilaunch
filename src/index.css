@@ -6,7 +6,12 @@
 @import '@docker/trident/styles/dds-tokens.css';
 
 body {
+  margin: 0;
   font-family: 'DM Sans Variable', system-ui, sans-serif;
   background-color: #f8f8fa;
   -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
 }
