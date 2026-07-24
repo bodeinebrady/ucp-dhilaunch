@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Clock, Download, Star, Search, SlidersHorizontal } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import ProtoBar from '../components/ProtoBar'
 import Navbar from '../components/Navbar'
 import { ShieldIcon } from '../components/DhiBadge'
 import { FEATURED_IMAGES, MONITORING_IMAGES } from '../data/catalogData'
@@ -158,7 +157,6 @@ export default function CatalogPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8fa', display: 'flex', flexDirection: 'column' }}>
-      <ProtoBar label="DHI Catalog" />
       <Navbar />
 
       <main style={{ flex: 1 }}>

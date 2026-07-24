@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, ChevronDown, Copy, Check, ArrowRight, Shield } from 'lucide-react'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@docker/trident/components/ui/select'
-import ProtoBar from '../components/ProtoBar'
 import Navbar from '../components/Navbar'
 import { ShieldIcon } from '../components/DhiBadge'
 import { BRAND_ICONS } from '../data/brandIcons'
@@ -686,7 +685,6 @@ export default function MirrorDetailPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8fa', display: 'flex', flexDirection: 'column' }}>
       <MirrorDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
-      <ProtoBar label="Mirroring Flow" />
       <Navbar />
 
       <main style={{ flex: 1 }}>

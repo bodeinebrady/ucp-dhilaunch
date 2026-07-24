@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, CheckCircle2, X, ChevronRight, Check, Plus, Trash2 } from 'lucide-react'
-import ProtoBar from '../components/ProtoBar'
 import Navbar from '../components/Navbar'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -1314,7 +1313,6 @@ export default function CustomizePage() {
 
   return (
     <div style={{ height: '100vh', background: '#f8f8fa', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <ProtoBar label="Bulk Customizations" />
       <Navbar />
 
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

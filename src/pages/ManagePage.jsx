@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Search, MoreHorizontal, Plus, ChevronDown, X } from 'lucide-react'
-import ProtoBar from '../components/ProtoBar'
 import Navbar from '../components/Navbar'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -416,7 +415,6 @@ export default function ManagePage() {
           50% { transform: scale(1.6); opacity: 0; }
         }
       `}</style>
-      <ProtoBar label="Manage Hardened Images" />
       <Navbar />
 
       <main style={{ flex: 1 }}>
