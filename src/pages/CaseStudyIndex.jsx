@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom'
 // ─── Brand ──────────────────────────────────────────────────────────────────
 // "Bold" design system, matched to sean's portfolio.
 
-// Portfolio isn't deployed yet — leave empty so the brand / pill / footer
-// render but don't navigate. Set this to the portfolio URL once it's live.
-const PORTFOLIO_URL = ''
+// Portfolio home — the brand ("Sean Brady") and the footer back-link point here.
+const PORTFOLIO_URL = 'https://portfolio-ten-blue-75.vercel.app/docker-hardened-images/'
 
 // Only attach an href when the URL is set, so an empty URL yields an inert link.
 const portfolioLink = PORTFOLIO_URL ? { href: PORTFOLIO_URL } : {}
@@ -58,10 +57,6 @@ const CSS = `
   border-bottom:2px solid ${T.ink}}
 .bold-nav-left{display:flex;align-items:baseline;gap:clamp(14px,2vw,28px);min-width:0}
 .bold-brand{font-family:${T.display};font-size:clamp(24px,2.2vw,32px);line-height:1;letter-spacing:-.01em;text-transform:uppercase}
-.bold-pill{border:2px solid ${T.ink};border-radius:99px;padding:12px 26px;font-family:${T.sans};font-weight:800;text-transform:uppercase;
-  letter-spacing:.08em;font-size:13px;background:transparent;color:${T.ink};cursor:pointer;white-space:nowrap;
-  transition:background .2s ${T.ease},color .2s ${T.ease}}
-.bold-pill:hover{background:${T.ink};color:${T.red}}
 
 .bold-wrap{max-width:1440px;margin:0 auto;padding:0 clamp(20px,3vw,46px)}
 
@@ -133,7 +128,6 @@ export default function CaseStudyIndex() {
         <div className="bold-nav-left">
           <a className="bold-brand" {...portfolioLink}>Sean Brady</a>
         </div>
-        <a className="bold-pill" {...portfolioLink}>Portfolio</a>
       </nav>
 
       {/* Hero */}
